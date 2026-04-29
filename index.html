@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amigos ARU - Gestão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .admin-only { display: none !important; }
+        .admin-active .admin-only { display: block !important; }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div id="loginPage" class="fixed inset-0 bg-green-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-sm text-center">
+            <i class="fas fa-futbol text-5xl text-green-600 mb-4"></i>
+            <h1 class="text-2xl font-black mb-6">AMIGOS ARU</h1>
+            <button onclick="window.enterApp('player')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold mb-4 uppercase">Entrar como Jogador</button>
+            <div class="border-t pt-4">
+                <input type="password" id="adminPass" placeholder="Senha ADM" class="w-full p-3 border rounded-xl mb-3 text-center outline-none">
+                <button onclick="window.enterApp('admin')" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase">Acesso Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden min-h-screen pb-32">
+        <nav class="bg-green-700 text-white p-4 sticky top-0 z-40 flex justify-between items-center shadow-lg">
+            <h2 class="font-bold italic">AMIGOS ARU</h2>
+            <span id="roleTag" class="text-[10px] bg-white text-green-700 px-2 py-1 rounded font-black"></span>
+        </nav>
+
+        <div class="p-4 space-y-4">
+            <section id="aba-home" class="tab-content active">
+                <div class="bg-white p-6 rounded-3xl shadow-sm text-center">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-green-50 p-3 rounded-2xl"><p class="text-[10px] uppercase font-bold text-green-600">Pagos</p><p id="countPaid" class="text-xl font-black">0</p></div>
+                        <div class="bg-orange-50 p-3 rounded-2xl"><p class="text-[10px] uppercase font-bold text-orange-600">Pendentes</p><p id="countPending" class="text-xl font-black">0</p></div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">Caixa Total</p>
+                        <h3 id="dashCash" class="text-2xl font-black text-slate-800">R$ 0,00</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section id="aba-jogadores" class="tab-content space-y-4">
+                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-green-500">
+                    <input type="hidden" id="editId">
+                    <input type="text" id="pName" placeholder="Nome do Atleta" class="w-full p-3 border rounded-xl mb-2 font-bold">
+                    <div class="flex gap-2 mb-2">
+                        <select id="pPos" class="flex-1 p-3 border rounded-xl text-xs font-bold">
+                            <option value="Goleiro">🧤 Goleiro</option>
+                            <option value="Zagueiro">🛡️ Zagueiro</option>
+                            <option value="Meia">🎯 Meia</option>
+                            <option value="Atacante">🚀 Atacante</option>
+                        </select>
+                        <select id="pStars" class="flex-1 p-3 border rounded-xl text-xs font-bold">
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                        </select>
+                    </div>
+                    <button onclick="window.addPlayer()" id="btnSave" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold uppercase">Salvar Atleta</button>
+                </div>
+                <div id="playerList" class="space-y-2"></div>
+            </section>
+
+            <section id="aba-financeiro" class="tab-content space-y-4">
+                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-blue-500">
+                    <input type="text" id="fPayer" placeholder="Quem pagou?" class="w-full p-3 border rounded-xl mb-2 font-bold">
+                    <input type="text" id="fDesc" placeholder="Descrição (Ex: Mensalidade)" class="w-full p-3 border rounded-xl mb-2 text-sm">
+                    <div class="flex gap-2 mb-2">
+                        <input type="number" id="fVal" placeholder="Valor R$" class="flex-1 p-3 border rounded-xl font-bold">
+                        <select id="fType" class="p-3 border rounded-xl font-bold text-xs">
+                            <option value="in">ENTRADA</option>
+                            <option value="out">SAÍDA</option>
+                        </select>
+                    </div>
+                    <button onclick="window.addFinance()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase">Lançar no Caixa</button>
+                </div>
+                <ul id="finHistory" class="bg-white p-4 rounded-3xl divide-y"></ul>
+            </section>
+        </div>
+
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around shadow-2xl z-50">
+            <button onclick="window.showTab('aba-home')" class="flex flex-col items-center text-green-600"><i class="fas fa-home"></i><span class="text-[9px] font-bold uppercase">Início</span></button>
+            <button onclick="window.showTab('aba-jogadores')" class="flex flex-col items-center text-gray-400"><i class="fas fa-users"></i><span class="text-[9px] font-bold uppercase">Membros</span></button>
+            <button onclick="window.showTab('aba-financeiro')" class="flex flex-col items-center text-gray-400"><i class="fas fa-wallet"></i><span class="text-[9px] font-bold uppercase">Caixa</span></button>
+        </nav>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsqUeXLDpUhxvHxXOC19iRoQhPuYOGpFw",
+            authDomain: "amigosaru-6a228.firebaseapp.com",
+            projectId: "amigosaru-6a228",
+            storageBucket: "amigosaru-6a228.firebasestorage.app",
+            messagingSenderId: "1024825583351",
+            appId: "1:1024825583351:web:7672e8e1a66ed9ab6c55f2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let currentPlayers = [];
+        let financeData = [];
+
+        window.enterApp = (role) => {
+            if(role === 'admin') {
+                if(document.getElementById('adminPass').value !== 'pelada22') return alert("Senha incorreta!");
+                document.body.classList.add('admin-active');
+            }
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('roleTag').innerText = role.toUpperCase();
+        };
+
+        window.showTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('nav button').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
+            event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
+        };
+
+        window.addPlayer = async () => {
+            const name = document.getElementById('pName').value, pos = document.getElementById('pPos').value, stars = parseInt(document.getElementById('pStars').value), editId = document.getElementById('editId').value;
+            if(!name) return alert("Nome vazio!");
+            if(editId) {
+                await updateDoc(doc(db, "amigos_aru_membros", editId), { name, pos, stars });
+                document.getElementById('editId').value = "";
+                document.getElementById('btnSave').innerText = "Salvar Atleta";
+            } else {
+                await addDoc(collection(db, "amigos_aru_membros"), { name, pos, stars });
+            }
+            document.getElementById('pName').value = "";
+        };
+
+        window.deletePlayer = async (id) => {
+            if(confirm("Apagar jogador?")) await deleteDoc(doc(db, "amigos_aru_membros", id));
+        };
+
+        window.prepareEdit = (id, name, pos, stars) => {
+            if(!document.body.classList.contains('admin-active')) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('pName').value = name;
+            document.getElementById('pPos').value = pos;
+            document.getElementById('pStars').value = stars;
+            document.getElementById('btnSave').innerText = "Confirmar Edição";
+            window.scrollTo(0,0);
+        };
+
+        window.addFinance = async () => {
+            const payer = document.getElementById('fPayer').value, desc = document.getElementById('fDesc').value, val = parseFloat(document.getElementById('fVal').value), type = document.getElementById('fType').value;
+            if(!payer || !val) return alert("Dados incompletos");
+            await addDoc(collection(db, "amigos_aru_caixa"), { payer, desc, val: type === 'out' ? -val : val, ts: Date.now(), date: new Date().toLocaleDateString() });
+            document.getElementById('fPayer').value = ''; document.getElementById('fVal').value = '';
+        };
+
+        function refreshUI() {
+            const list = document.getElementById('playerList');
+            let paidCount = 0; list.innerHTML = '';
+            currentPlayers.forEach(p => {
+                const isPaid = financeData.some(f => f.payer.trim().toLowerCase() === p.name.trim().toLowerCase() && f.val > 0);
+                if(isPaid) paidCount++;
+                list.innerHTML += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm flex justify-between items-center">
+                    <div onclick="window.prepareEdit('${p.id}','${p.name}','${p.pos}',${p.stars})" class="flex-1">
+                        <p class="font-bold text-sm uppercase">${p.name}</p>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase">${p.pos} | ${"⭐".repeat(p.stars)}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${isPaid ? '<span class="text-[9px] font-bold text-green-600">✅ PAGO</span>' : '<span class="text-[9px] font-bold text-orange-500">❌ PENDENTE</span>'}
+                        <button onclick="window.deletePlayer('${p.id}')" class="admin-only text-red-300 p-2"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('countPaid').innerText = paidCount;
+            document.getElementById('countPending').innerText = currentPlayers.length - paidCount;
+        }
+
+        onSnapshot(query(collection(db, "amigos_aru_membros"), orderBy("name")), (s) => {
+            currentPlayers = s.docs.map(d => ({id: d.id, ...d.data()}));
+            refreshUI();
+        });
+
+        onSnapshot(query(collection(db, "amigos_aru_caixa"), orderBy("ts", "desc")), (s) => {
+            financeData = s.docs.map(d => d.data());
+            let total = 0;
+            const hist = document.getElementById('finHistory');
+            hist.innerHTML = '';
+            financeData.forEach(f => {
+                total += f.val;
+                hist.innerHTML += `<li class="flex justify-between py-2 items-center">
+                    <div class="text-[10px] uppercase font-bold"><b>${f.payer}</b><br><span class="text-gray-400 font-normal">${f.desc}</span></div>
+                    <span class="font-black text-xs ${f.val > 0 ? 'text-blue-600' : 'text-red-600'}">${f.val.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</span>
+                </li>`;
+            });
+            document.getElementById('dashCash').innerText = total.toLocaleString('pt-br',{style:'currency',currency:'BRL'});
+            refreshUI();
+        });
+    </script>
+</body>
+</html>
