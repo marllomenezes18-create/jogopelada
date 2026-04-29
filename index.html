@@ -19,10 +19,10 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-sm text-center">
             <i class="fas fa-futbol text-5xl text-green-600 mb-4"></i>
             <h1 class="text-2xl font-black mb-6">AMIGOS ARU</h1>
-            <button onclick="window.enterApp('player')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold mb-4 uppercase">Entrar como Jogador</button>
+            <button onclick="window.enterApp('player')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold mb-4 uppercase text-sm">Entrar como Jogador</button>
             <div class="border-t pt-4">
                 <input type="password" id="adminPass" placeholder="Senha ADM" class="w-full p-3 border rounded-xl mb-3 text-center outline-none">
-                <button onclick="window.enterApp('admin')" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase">Acesso Admin</button>
+                <button onclick="window.enterApp('admin')" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-sm">Acesso Admin</button>
             </div>
         </div>
     </div>
@@ -30,90 +30,83 @@
     <div id="mainApp" class="hidden min-h-screen pb-32">
         <nav class="bg-green-700 text-white p-4 sticky top-0 z-40 flex justify-between items-center shadow-lg">
             <h2 class="font-bold italic">AMIGOS ARU</h2>
-            <span id="roleTag" class="text-[10px] bg-white text-green-700 px-2 py-1 rounded font-black"></span>
+            <span id="roleTag" class="text-[10px] bg-white text-green-700 px-2 py-1 rounded font-black uppercase"></span>
         </nav>
 
         <div class="p-4 space-y-4">
+            
             <section id="aba-home" class="tab-content active">
                 <div class="bg-white p-6 rounded-3xl shadow-sm text-center">
-                    <h3 class="text-[10px] uppercase font-black text-gray-400 mb-4">Status de Mensalidade</h3>
+                    <h3 class="text-[10px] uppercase font-black text-gray-400 mb-4 italic">Resumo Financeiro</h3>
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div class="bg-green-50 p-3 rounded-2xl"><p class="text-[10px] uppercase font-bold text-green-600">Pagos</p><p id="countPaid" class="text-xl font-black">0</p></div>
                         <div class="bg-orange-50 p-3 rounded-2xl"><p class="text-[10px] uppercase font-bold text-orange-600">Pendentes</p><p id="countPending" class="text-xl font-black">0</p></div>
                     </div>
                     <div class="border-t pt-4">
-                        <p class="text-gray-400 text-[10px] uppercase font-bold">Saldo em Caixa</p>
+                        <p class="text-gray-400 text-[10px] uppercase font-bold">Saldo Atual</p>
                         <h3 id="dashCash" class="text-2xl font-black text-slate-800">R$ 0,00</h3>
                     </div>
                 </div>
 
                 <div class="bg-slate-800 p-5 rounded-3xl text-white shadow-xl mt-4">
-                    <h3 class="font-black mb-3 uppercase text-xs flex items-center gap-2"><i class="fas fa-random text-green-400"></i> Sorteio de Times</h3>
+                    <h3 class="font-black mb-3 uppercase text-xs flex items-center gap-2"><i class="fas fa-dice text-green-400"></i> Sorteio de Equipes</h3>
                     <div class="flex gap-2 mb-4">
-                        <input type="number" id="numTeams" class="w-1/3 p-2 rounded-lg text-slate-900 font-bold text-center" value="2" min="2">
-                        <button onclick="window.drawTeams()" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-black rounded-lg py-2 uppercase text-xs transition">Gerar Times</button>
+                        <input type="number" id="numTeams" class="w-1/3 p-2 rounded-lg text-slate-900 font-bold text-center" value="2">
+                        <button onclick="window.drawTeams()" class="flex-1 bg-green-500 text-white font-black rounded-lg py-2 uppercase text-xs">Sortear Agora</button>
                     </div>
-                    <div id="drawResult" class="space-y-3"></div>
+                    <div id="drawResult" class="grid grid-cols-1 gap-3"></div>
                 </div>
             </section>
 
             <section id="aba-jogadores" class="tab-content space-y-4">
-                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-green-500">
+                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-green-500 shadow-md">
+                    <p class="text-[10px] font-black text-green-600 uppercase mb-3 italic">Gerenciar Atleta</p>
                     <input type="hidden" id="editId">
-                    <input type="text" id="pName" placeholder="Nome do Atleta" class="w-full p-3 border rounded-xl mb-2 font-bold uppercase">
+                    <input type="text" id="pName" placeholder="NOME DO JOGADOR" class="w-full p-3 border rounded-xl mb-2 font-black uppercase text-sm">
                     <div class="flex gap-2 mb-2">
-                        <select id="pPos" class="flex-1 p-3 border rounded-xl text-xs font-bold">
+                        <select id="pPos" class="flex-1 p-3 border rounded-xl text-xs font-bold bg-slate-50">
                             <option value="Goleiro">🧤 Goleiro</option>
                             <option value="Zagueiro">🛡️ Zagueiro</option>
                             <option value="Meia">🎯 Meia</option>
                             <option value="Atacante">🚀 Atacante</option>
                         </select>
-                        <select id="pStars" class="flex-1 p-3 border rounded-xl text-xs font-bold">
+                        <select id="pStars" class="flex-1 p-3 border rounded-xl text-xs font-bold bg-slate-50">
                             <option value="5">⭐⭐⭐⭐⭐</option>
                             <option value="4">⭐⭐⭐⭐</option>
                             <option value="3">⭐⭐⭐</option>
                         </select>
                     </div>
-                    <button onclick="window.addPlayer()" id="btnSave" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold uppercase">Salvar Atleta</button>
+                    <button onclick="window.addPlayer()" id="btnSave" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Salvar Alterações</button>
                 </div>
-                <div id="playerList" class="space-y-2"></div>
+
+                <div id="playerList" class="space-y-3"></div>
             </section>
 
             <section id="aba-financeiro" class="tab-content space-y-4">
-                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-blue-500">
-                    <h3 class="font-black text-xs uppercase mb-3 text-blue-600">Lançar Mensalidade</h3>
-                    <input type="text" id="fPayer" placeholder="Nome do Jogador" class="w-full p-3 border rounded-xl mb-2 font-bold uppercase">
-                    
+                <div class="admin-only bg-white p-5 rounded-3xl border-2 border-blue-500 shadow-md">
+                    <h3 class="font-black text-xs uppercase mb-3 text-blue-600">Lançamento Avulso</h3>
+                    <input type="text" id="fPayer" placeholder="NOME" class="w-full p-3 border rounded-xl mb-2 font-bold uppercase text-sm">
+                    <input type="text" id="fDesc" placeholder="EX: CHURRASCO, ALUGUEL" class="w-full p-3 border rounded-xl mb-2 text-xs uppercase font-bold">
                     <div class="flex gap-2 mb-2">
-                        <select id="fMonth" class="flex-1 p-3 border rounded-xl font-bold text-xs">
-                            <option value="Janeiro">Janeiro</option><option value="Fevereiro">Fevereiro</option>
-                            <option value="Março">Março</option><option value="Abril">Abril</option>
-                            <option value="Maio">Maio</option><option value="Junho">Junho</option>
-                            <option value="Julho">Julho</option><option value="Agosto">Agosto</option>
-                            <option value="Setembro">Setembro</option><option value="Outubro">Outubro</option>
-                            <option value="Novembro">Novembro</option><option value="Dezembro">Dezembro</option>
+                        <input type="number" id="fVal" placeholder="R$" class="flex-1 p-3 border rounded-xl font-bold">
+                        <select id="fType" class="p-3 border rounded-xl font-bold text-xs">
+                            <option value="in">ENTRADA (+)</option>
+                            <option value="out">SAÍDA (-)</option>
                         </select>
-                        <input type="number" id="fVal" placeholder="Valor R$" class="flex-1 p-3 border rounded-xl font-bold" value="50">
                     </div>
-                    
-                    <select id="fType" class="w-full p-3 border rounded-xl font-bold text-xs mb-2">
-                        <option value="in">MENSALIDADE (ENTRADA)</option>
-                        <option value="out">GASTO (SAÍDA)</option>
-                    </select>
-                    
-                    <button onclick="window.addFinance()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase">Confirmar Pagamento</button>
+                    <button onclick="window.addFinance()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Registrar</button>
                 </div>
-                <div class="bg-white p-4 rounded-3xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-gray-400 uppercase mb-3">Histórico de Meses</h4>
-                    <ul id="finHistory" class="divide-y"></ul>
+                <div class="bg-white p-5 rounded-3xl shadow-sm">
+                    <h4 class="text-[10px] font-black text-gray-400 uppercase mb-4 italic">Histórico de Caixa</h4>
+                    <ul id="finHistory" class="divide-y space-y-1"></ul>
                 </div>
             </section>
         </div>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around shadow-2xl z-50">
-            <button onclick="window.showTab('aba-home')" class="flex flex-col items-center text-green-600"><i class="fas fa-home"></i><span class="text-[9px] font-bold uppercase">Início</span></button>
-            <button onclick="window.showTab('aba-jogadores')" class="flex flex-col items-center text-gray-400"><i class="fas fa-users"></i><span class="text-[9px] font-bold uppercase">Membros</span></button>
-            <button onclick="window.showTab('aba-financeiro')" class="flex flex-col items-center text-gray-400"><i class="fas fa-wallet"></i><span class="text-[9px] font-bold uppercase">Caixa</span></button>
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around shadow-2xl z-50 rounded-t-[2rem]">
+            <button onclick="window.showTab('aba-home')" class="flex flex-col items-center text-green-600"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-black uppercase mt-1">Início</span></button>
+            <button onclick="window.showTab('aba-jogadores')" class="flex flex-col items-center text-gray-400"><i class="fas fa-users text-lg"></i><span class="text-[9px] font-black uppercase mt-1">Membros</span></button>
+            <button onclick="window.showTab('aba-financeiro')" class="flex flex-col items-center text-gray-400"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-black uppercase mt-1">Caixa</span></button>
         </nav>
     </div>
 
@@ -142,7 +135,7 @@
             }
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('roleTag').innerText = role.toUpperCase();
+            document.getElementById('roleTag').innerText = role;
         };
 
         window.showTab = (id) => {
@@ -152,37 +145,26 @@
             event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
         };
 
-        // --- SORTEIO DE TIMES ---
+        // --- SORTEIO ---
         window.drawTeams = () => {
             const numTeams = parseInt(document.getElementById('numTeams').value);
-            const resultDiv = document.getElementById('drawResult');
-            resultDiv.innerHTML = '';
-
-            if (currentPlayers.length < numTeams) return alert("Poucos jogadores cadastrados!");
-
-            // Embaralhar jogadores
+            const res = document.getElementById('drawResult');
+            res.innerHTML = '';
+            if (currentPlayers.length < numTeams) return alert("Adicione mais jogadores!");
             const shuffled = [...currentPlayers].sort(() => Math.random() - 0.5);
             const teams = Array.from({ length: numTeams }, () => []);
-
-            shuffled.forEach((player, index) => {
-                teams[index % numTeams].push(player);
-            });
-
-            teams.forEach((team, i) => {
-                let html = `<div class="bg-white/10 p-3 rounded-xl border-l-4 border-green-400">
-                    <p class="text-[10px] font-black uppercase text-green-400 mb-1">Time ${i + 1}</p>
-                    <ul class="text-xs space-y-1">`;
-                team.forEach(p => {
-                    html += `<li>• ${p.name} <span class="text-[9px] text-gray-400">(${p.pos.charAt(0)})</span></li>`;
-                });
-                html += `</ul></div>`;
-                resultDiv.innerHTML += html;
+            shuffled.forEach((p, i) => teams[i % numTeams].push(p));
+            teams.forEach((t, i) => {
+                let html = `<div class="bg-white/10 p-3 rounded-2xl border-l-4 border-green-400 text-white"><p class="text-[9px] font-black uppercase text-green-400">Time ${i+1}</p><ul class="text-[11px] font-bold">`;
+                t.forEach(p => html += `<li>• ${p.name}</li>`);
+                res.innerHTML += html + `</ul></div>`;
             });
         };
 
+        // --- JOGADORES ---
         window.addPlayer = async () => {
             const name = document.getElementById('pName').value.toUpperCase(), pos = document.getElementById('pPos').value, stars = parseInt(document.getElementById('pStars').value), editId = document.getElementById('editId').value;
-            if(!name) return alert("Nome vazio!");
+            if(!name) return alert("Nome obrigatório!");
             if(editId) {
                 await updateDoc(doc(db, "amigos_aru_membros", editId), { name, pos, stars });
                 document.getElementById('editId').value = "";
@@ -194,7 +176,23 @@
         };
 
         window.deletePlayer = async (id) => {
-            if(confirm("Apagar jogador?")) await deleteDoc(doc(db, "amigos_aru_membros", id));
+            if(confirm("Deseja excluir permanentemente?")) await deleteDoc(doc(db, "amigos_aru_membros", id));
+        };
+
+        // --- FUNÇÃO PARA CONFIRMAR PAGAMENTO RÁPIDO ---
+        window.quickPay = async (playerName) => {
+            const monthNames = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+            const currentMonth = monthNames[new Date().getMonth()];
+            
+            if(confirm(`Confirmar pagamento de ${playerName} para o mês de ${currentMonth}?`)) {
+                await addDoc(collection(db, "amigos_aru_caixa"), { 
+                    payer: playerName.toUpperCase(), 
+                    desc: `MENSALIDADE ${currentMonth}`, 
+                    val: 50.00, 
+                    ts: Date.now(), 
+                    date: new Date().toLocaleDateString() 
+                });
+            }
         };
 
         window.prepareEdit = (id, name, pos, stars) => {
@@ -207,23 +205,12 @@
             window.scrollTo(0,0);
         };
 
+        // --- FINANCEIRO ---
         window.addFinance = async () => {
-            const payer = document.getElementById('fPayer').value.toUpperCase(), 
-                  month = document.getElementById('fMonth').value,
-                  val = parseFloat(document.getElementById('fVal').value), 
-                  type = document.getElementById('fType').value;
-            
-            if(!payer || !val) return alert("Preencha o nome e valor!");
-            
-            await addDoc(collection(db, "amigos_aru_caixa"), { 
-                payer, 
-                desc: month, // Usamos o campo desc para salvar o mês
-                val: type === 'out' ? -val : val, 
-                ts: Date.now(), 
-                date: new Date().toLocaleDateString() 
-            });
-            
-            document.getElementById('fPayer').value = '';
+            const payer = document.getElementById('fPayer').value.toUpperCase(), desc = document.getElementById('fDesc').value.toUpperCase(), val = parseFloat(document.getElementById('fVal').value), type = document.getElementById('fType').value;
+            if(!payer || !val) return alert("Preencha Nome e Valor");
+            await addDoc(collection(db, "amigos_aru_caixa"), { payer, desc, val: type === 'out' ? -val : val, ts: Date.now(), date: new Date().toLocaleDateString() });
+            document.getElementById('fPayer').value = ''; document.getElementById('fVal').value = '';
         };
 
         function refreshUI() {
@@ -231,19 +218,33 @@
             let paidCount = 0; list.innerHTML = '';
             
             currentPlayers.forEach(p => {
-                // Verifica se há algum pagamento no histórico para este jogador
                 const isPaid = financeData.some(f => f.payer.trim() === p.name.trim() && f.val > 0);
                 if(isPaid) paidCount++;
                 
                 list.innerHTML += `
-                <div class="bg-white p-3 rounded-2xl shadow-sm flex justify-between items-center">
-                    <div onclick="window.prepareEdit('${p.id}','${p.name}','${p.pos}',${p.stars})" class="flex-1">
-                        <p class="font-bold text-sm uppercase">${p.name}</p>
-                        <p class="text-[9px] text-gray-400 font-bold uppercase">${p.pos} | ${"⭐".repeat(p.stars)}</p>
+                <div class="bg-white p-4 rounded-[1.5rem] shadow-sm flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <div onclick="window.prepareEdit('${p.id}','${p.name}','${p.pos}',${p.stars})" class="flex-1">
+                            <p class="font-black text-xs uppercase">${p.name}</p>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase italic">${p.pos} | ${"⭐".repeat(p.stars)}</p>
+                        </div>
+                        <button onclick="window.deletePlayer('${p.id}')" class="admin-only text-red-200 p-2"><i class="fas fa-trash-alt"></i></button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        ${isPaid ? '<span class="text-[9px] font-bold text-green-600">✅ PAGO</span>' : '<span class="text-[9px] font-bold text-orange-500">❌ PENDENTE</span>'}
-                        <button onclick="window.deletePlayer('${p.id}')" class="admin-only text-red-300 p-2"><i class="fas fa-trash"></i></button>
+                    
+                    <div class="admin-only grid grid-cols-2 gap-2 border-t pt-3">
+                        <button onclick="window.quickPay('${p.name}')" class="${isPaid ? 'bg-green-50 text-green-600' : 'bg-green-600 text-white'} py-2 rounded-xl text-[9px] font-black uppercase flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle"></i> ${isPaid ? 'PAGO OK' : 'MARCAR PAGO'}
+                        </button>
+                        <div class="bg-slate-100 text-slate-400 py-2 rounded-xl text-[9px] font-black uppercase flex items-center justify-center gap-2 italic">
+                            ${isPaid ? 'LIQUIDADO' : 'PENDENTE'}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="w-2 h-2 rounded-full ${isPaid ? 'bg-green-500' : 'bg-orange-500'}"></div>
+                        <span class="text-[9px] font-black ${isPaid ? 'text-green-600' : 'text-orange-500'} uppercase">
+                            ${isPaid ? 'Status: Pago' : 'Status: Pendente'}
+                        </span>
                     </div>
                 </div>`;
             });
@@ -263,9 +264,9 @@
             hist.innerHTML = '';
             financeData.forEach(f => {
                 total += f.val;
-                hist.innerHTML += `<li class="flex justify-between py-2 items-center">
-                    <div class="text-[10px] uppercase font-bold"><b>${f.payer}</b><br><span class="text-blue-500 font-black">${f.desc}</span></div>
-                    <span class="font-black text-xs ${f.val > 0 ? 'text-green-600' : 'text-red-600'}">${f.val.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</span>
+                hist.innerHTML += `<li class="flex justify-between py-3 items-center">
+                    <div class="text-[9px] font-black uppercase"><b>${f.payer}</b><br><span class="text-gray-400 font-bold">${f.desc}</span></div>
+                    <span class="font-black text-xs ${f.val > 0 ? 'text-blue-600' : 'text-red-600'}">${f.val.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</span>
                 </li>`;
             });
             document.getElementById('dashCash').innerText = total.toLocaleString('pt-br',{style:'currency',currency:'BRL'});
