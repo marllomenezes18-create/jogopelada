@@ -52,8 +52,15 @@
                     <input type="hidden" id="editFinId">
                     <input type="text" id="fDesc" placeholder="DESCRIÇÃO (EX: COMPRA BOLA)" class="w-full p-2 border rounded-lg mb-2 outline-none text-sm font-bold uppercase">
                     <input type="number" id="fVal" placeholder="VALOR (EX: 50 ou -50 para saída)" class="w-full p-2 border rounded-lg mb-2 outline-none text-sm font-bold">
-                    <button onclick="saveFinance()" id="btnSaveFin" class="bg-blue-600 text-white py-2 rounded-lg font-bold">LANÇAR NO CAIXA</button>
+                    <button onclick="saveFinance()" id="btnSaveFin" class="bg-blue-600 text-white py-2 rounded-lg font-bold mb-3">LANÇAR NO CAIXA</button>
+                    
+                    <hr class="my-2">
+                    <p class="text-[10px] font-bold text-red-500 uppercase mb-2">Zona de Perigo:</p>
+                    <button onclick="clearAllFinance()" class="bg-red-600 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-red-700 transition">
+                        <i class="fas fa-exclamation-triangle"></i> Zerar Saldo e Histórico
+                    </button>
                 </div>
+                
                 <div class="bg-white p-4 rounded-3xl shadow">
                     <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase">Histórico de Transações</h4>
                     <ul id="finHistory" class="space-y-2 divide-y"></ul>
@@ -70,7 +77,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCsqUeXLDpUhxvHxXOC19iRoQhPuYOGpFw",
@@ -83,105 +90,4 @@
 
         let currentFinance = [];
 
-        window.enterApp = (role) => {
-            if(role === 'admin' && document.getElementById('adminPass').value !== 'pelada22') return alert("Senha errada!");
-            if(role === 'admin') document.body.classList.add('admin-active');
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('roleTag').innerText = role.toUpperCase();
-        };
-
-        window.showTab = (id) => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('nav button').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
-        };
-
-        // --- JOGADORES ---
-        window.addPlayer = async () => {
-            const name = document.getElementById('pName').value.toUpperCase();
-            if(!name) return alert("Digite o nome!");
-            await addDoc(collection(db, "amigos_aru_membros"), { name });
-            document.getElementById('pName').value = "";
-        };
-
-        window.deletePlayer = async (id) => { if(confirm("Excluir jogador?")) await deleteDoc(doc(db, "amigos_aru_membros", id)); };
-
-        // --- CAIXA: ADICIONAR, EDITAR E EXCLUIR ---
-        window.saveFinance = async () => {
-            const desc = document.getElementById('fDesc').value.toUpperCase();
-            const val = parseFloat(document.getElementById('fVal').value);
-            const editId = document.getElementById('editFinId').value;
-
-            if(!desc || isNaN(val)) return alert("Preencha a descrição e o valor corretamente!");
-
-            if(editId) {
-                // Atualiza o existente
-                await updateDoc(doc(db, "amigos_aru_caixa", editId), { desc, val });
-                document.getElementById('editFinId').value = "";
-                document.getElementById('formTitle').innerText = "Novo Lançamento";
-                document.getElementById('btnSaveFin').innerText = "LANÇAR NO CAIXA";
-            } else {
-                // Cria um novo
-                await addDoc(collection(db, "amigos_aru_caixa"), { desc, val, ts: Date.now() });
-            }
-
-            document.getElementById('fDesc').value = "";
-            document.getElementById('fVal').value = "";
-        };
-
-        window.editFinance = (id) => {
-            const item = currentFinance.find(f => f.id === id);
-            if(item) {
-                document.getElementById('editFinId').value = item.id;
-                document.getElementById('fDesc').value = item.desc;
-                document.getElementById('fVal').value = item.val;
-                document.getElementById('formTitle').innerText = "Editando Lançamento";
-                document.getElementById('btnSaveFin').innerText = "ATUALIZAR";
-                showTab('aba-financeiro');
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.deleteFinance = async (id) => { 
-            if(confirm("Deseja apagar este registro do fluxo de caixa?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); 
-        };
-
-        // ATUALIZAÇÃO EM TEMPO REAL: JOGADORES
-        onSnapshot(query(collection(db, "amigos_aru_membros"), orderBy("name")), (s) => {
-            const list = document.getElementById('playerList');
-            list.innerHTML = '';
-            s.docs.forEach(d => {
-                list.innerHTML += `<div class="bg-white p-4 rounded-xl flex justify-between items-center shadow-sm">
-                    <span class="font-bold text-sm uppercase">${d.data().name}</span>
-                    <button onclick="deletePlayer('${d.id}')" class="admin-only text-red-500 hover:text-red-700 transition"><i class="fas fa-trash"></i></button>
-                </div>`;
-            });
-        });
-
-        // ATUALIZAÇÃO EM TEMPO REAL: CAIXA
-        onSnapshot(query(collection(db, "amigos_aru_caixa"), orderBy("ts", "desc")), (s) => {
-            currentFinance = s.docs.map(d => ({ id: d.id, ...d.data() }));
-            const hist = document.getElementById('finHistory');
-            hist.innerHTML = '';
-            let total = 0;
-
-            currentFinance.forEach(f => {
-                total += f.val;
-                hist.innerHTML += `<li class="flex justify-between items-center py-3">
-                    <div>
-                        <p class="text-xs font-bold uppercase text-slate-800">${f.desc}</p>
-                        <p class="text-sm font-black ${f.val > 0 ? 'text-green-600' : 'text-red-600'}">R$ ${f.val.toFixed(2)}</p>
-                    </div>
-                    <div class="admin-only gap-3 items-center">
-                        <button onclick="editFinance('${f.id}')" class="text-blue-500 hover:text-blue-700 transition"><i class="fas fa-edit"></i></button>
-                        <button onclick="deleteFinance('${f.id}')" class="text-red-500 hover:text-red-700 transition"><i class="fas fa-trash"></i></button>
-                    </div>
-                </li>`;
-            });
-            document.getElementById('dashCash').innerText = `R$ ${total.toFixed(2)}`;
-        });
-    </script>
-</body>
-</html>
+        window.enterApp =
