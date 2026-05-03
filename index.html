@@ -31,16 +31,38 @@
         </nav>
 
         <div class="p-4 space-y-4">
-            <section id="aba-home" class="tab-content active">
+            <section id="aba-home" class="tab-content active space-y-4">
                 <div class="bg-white p-6 rounded-3xl text-center shadow">
-                    <p class="text-xs text-gray-400 font-bold">SALDO EM CAIXA</p>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Saldo em Caixa</p>
                     <h3 id="dashCash" class="text-3xl font-black">R$ 0,00</h3>
+                </div>
+
+                <div class="bg-slate-800 p-5 rounded-3xl text-white shadow-xl">
+                    <h3 class="font-black mb-3 uppercase text-xs text-green-400 italic">Sorteio Inteligente de Times</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="number" id="numTeams" class="w-1/4 p-2 rounded-lg text-slate-900 font-bold text-center" value="2" min="2">
+                        <button onclick="window.drawBalancedTeams()" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-black rounded-lg py-2 uppercase text-xs">Sortear Equipes</button>
+                    </div>
+                    <div id="drawResult" class="space-y-3"></div>
                 </div>
             </section>
 
             <section id="aba-jogadores" class="tab-content">
                 <div class="admin-only flex-col bg-white p-4 rounded-3xl border-2 border-green-500 mb-4 w-full">
-                    <input type="text" id="pName" placeholder="NOME DO JOGADOR" class="w-full p-2 border rounded-lg mb-2 outline-none">
+                    <input type="text" id="pName" placeholder="NOME DO JOGADOR" class="w-full p-2 border rounded-lg mb-2 outline-none uppercase text-sm font-bold">
+                    <div class="flex gap-2 mb-2">
+                        <select id="pPos" class="flex-1 p-2 border rounded-lg text-xs font-bold outline-none">
+                            <option value="🧤 Goleiro">🧤 Goleiro</option>
+                            <option value="🛡️ Defensor">🛡️ Defensor</option>
+                            <option value="🎯 Meio">🎯 Meio</option>
+                            <option value="🚀 Atacante">🚀 Atacante</option>
+                        </select>
+                        <select id="pStars" class="flex-1 p-2 border rounded-lg text-xs font-bold outline-none">
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                        </select>
+                    </div>
                     <button onclick="window.addPlayer()" class="bg-green-600 text-white py-2 rounded-lg font-bold">SALVAR ATLETA</button>
                 </div>
                 <div id="playerList" class="space-y-2"></div>
@@ -113,13 +135,64 @@
         // --- JOGADORES ---
         window.addPlayer = async () => {
             const name = document.getElementById('pName').value.toUpperCase();
+            const pos = document.getElementById('pPos').value;
+            const stars = parseInt(document.getElementById('pStars').value);
+
             if(!name) return alert("Digite o nome!");
-            await addDoc(collection(db, "amigos_aru_membros"), { name });
+            await addDoc(collection(db, "amigos_aru_membros"), { name, pos, stars });
             document.getElementById('pName').value = "";
         };
 
         window.deletePlayer = async (id) => { 
             if(confirm("Excluir jogador?")) await deleteDoc(doc(db, "amigos_aru_membros", id)); 
+        };
+
+        // --- SORTEIO BALANCEADO POR POSIÇÃO E NÍVEL ---
+        window.drawBalancedTeams = () => {
+            const numTeams = parseInt(document.getElementById('numTeams').value);
+            const res = document.getElementById('drawResult');
+            res.innerHTML = '';
+
+            if (players.length < numTeams) return alert("Jogadores insuficientes para este número de times!");
+
+            // 1. Separar goleiros dos demais jogadores
+            const goalkeepers = players.filter(p => p.pos && p.pos.includes('🧤'));
+            const outfieldPlayers = players.filter(p => !p.pos || !p.pos.includes('🧤'));
+
+            // 2. Embaralhar goleiros e distribuir
+            const shuffledGK = [...goalkeepers].sort(() => Math.random() - 0.5);
+            // 3. Ordenar jogadores de linha por estrelas (do maior para o menor) e embaralhar no mesmo nível
+            const sortedOutfield = [...outfieldPlayers].sort((a, b) => {
+                if (b.stars === a.stars) return Math.random() - 0.5;
+                return b.stars - a.stars;
+            });
+
+            const teams = Array.from({ length: numTeams }, () => []);
+
+            // Distribuir goleiros primeiro
+            shuffledGK.forEach((gk, i) => {
+                teams[i % numTeams].push(gk);
+            });
+
+            // Distribuir os jogadores de linha "serpenteando" para equilibrar as forças
+            sortedOutfield.forEach((player, i) => {
+                const teamIndex = i % numTeams;
+                teams[teamIndex].push(player);
+            });
+
+            // Exibir resultados
+            teams.forEach((team, i) => {
+                let html = `<div class="bg-slate-700/50 p-3 rounded-2xl border-l-4 border-green-400 text-white text-xs font-bold">
+                    <p class="text-[10px] text-green-400 font-black uppercase mb-1">Time ${i + 1}</p>
+                    <ul class="space-y-1">`;
+                team.forEach(p => {
+                    html += `<li class="flex justify-between">
+                        <span>• ${p.name}</span>
+                        <span class="text-[10px] opacity-75">${p.pos || 'Meio'} | ${p.stars}⭐</span>
+                    </li>`;
+                });
+                res.innerHTML += html + `</ul></div>`;
+            });
         };
 
         // --- MENSALIDADE POR CALENDÁRIO ---
@@ -237,7 +310,10 @@
 
                 list.innerHTML += `<div class="bg-white p-4 rounded-xl flex flex-col gap-2 shadow-sm">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm uppercase">${p.name}</span>
+                        <div>
+                            <span class="font-bold text-sm uppercase">${p.name}</span>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase mt-0.5">${p.pos || '🎯 MEIO'} • ${'⭐'.repeat(p.stars || 5)}</p>
+                        </div>
                         <div class="flex gap-2 items-center">
                             <span class="text-[9px] font-bold px-2 py-1 rounded uppercase ${isPaid ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}">
                                 ${isPaid ? 'PAGO' : 'PENDENTE'}
