@@ -25,9 +25,9 @@
 
     <div id="loginPage" class="fixed inset-0 bg-green-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
-            <h1 class="text-2xl font-black mb-6 uppercase tracking-tighter">AMIGOS ARU</h1>
+            <h1 class="text-2xl font-black mb-6 uppercase tracking-tighter text-slate-800">AMIGOS ARU</h1>
             <button onclick="window.enterApp('player')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold mb-4 uppercase">Entrar Jogador</button>
-            <input type="password" id="adminPass" placeholder="Senha ADM" class="w-full p-3 border rounded-xl mb-3 text-center outline-none">
+            <input type="password" id="adminPass" placeholder="Senha ADM" class="w-full p-3 border rounded-xl mb-3 text-center outline-none font-bold">
             <button onclick="window.enterApp('admin')" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase">Acesso Admin</button>
         </div>
     </div>
@@ -44,6 +44,9 @@
                 <div class="bg-white p-6 rounded-3xl text-center shadow-sm border-b-4 border-green-500">
                     <p class="text-xs text-gray-400 font-bold uppercase italic">Saldo Disponível</p>
                     <h3 id="dashCash" class="text-4xl font-black text-slate-800">R$ 0,00</h3>
+                    <button onclick="window.adjustTotalBalance()" class="admin-only mx-auto mt-2 bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-bold uppercase">
+                        <i class="fas fa-edit mr-1"></i> Corrigir Saldo Total
+                    </button>
                 </div>
 
                 <div class="bg-slate-800 p-5 rounded-3xl text-white shadow-xl">
@@ -60,7 +63,7 @@
 
             <section id="aba-jogadores" class="tab-content">
                 <div class="admin-only flex-col bg-white p-4 rounded-3xl border-2 border-green-500 mb-4 w-full shadow-md">
-                    <h3 class="font-bold text-[10px] mb-3 text-green-600 uppercase italic">Cadastrar Novo Atleta</h3>
+                    <h3 class="font-bold text-[10px] mb-3 text-green-600 uppercase italic">Cadastrar Atleta</h3>
                     <input type="text" id="pName" placeholder="NOME DO JOGADOR" class="w-full p-3 border rounded-xl mb-2 outline-none uppercase text-sm font-bold">
                     <div class="flex gap-2 mb-3">
                         <select id="pPos" class="flex-1 p-3 border rounded-xl text-xs font-bold outline-none">
@@ -86,28 +89,19 @@
                     <input type="hidden" id="editFinId">
                     
                     <div class="space-y-2">
-                        <input type="text" id="fDesc" placeholder="DESCRIÇÃO (O que é?)" class="w-full p-3 border rounded-xl outline-none text-xs font-bold uppercase">
-                        <input type="number" id="fVal" placeholder="VALOR" class="w-full p-3 border rounded-xl outline-none text-xs font-bold">
+                        <input type="text" id="fDesc" placeholder="DESCRIÇÃO" class="w-full p-3 border rounded-xl outline-none text-xs font-bold uppercase">
+                        <input type="number" step="0.01" id="fVal" placeholder="VALOR" class="w-full p-3 border rounded-xl outline-none text-xs font-bold">
                         
                         <div class="flex gap-2">
-                            <button onclick="window.saveFinance('entrada')" id="btnIn" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">
-                                <i class="fas fa-plus-circle"></i> Entrada
-                            </button>
-                            <button onclick="window.saveFinance('despesa')" id="btnOut" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">
-                                <i class="fas fa-minus-circle"></i> Despesa
-                            </button>
+                            <button onclick="window.saveFinance('entrada')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Entrada</button>
+                            <button onclick="window.saveFinance('despesa')" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Saída</button>
                         </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <button onclick="window.clearAllFinance()" class="w-full bg-slate-100 text-slate-400 py-2 rounded-xl font-bold text-[9px] uppercase italic">
-                             Zerar Saldo Total
-                        </button>
+                        <button id="cancelEdit" onclick="window.resetForm()" class="hidden w-full text-gray-400 text-[10px] font-bold uppercase mt-2">Cancelar Edição</button>
                     </div>
                 </div>
                 
                 <div class="bg-white p-5 rounded-3xl shadow-sm">
-                    <h4 class="text-[10px] font-black text-gray-400 mb-4 uppercase italic tracking-widest text-center">Extrato Recente</h4>
+                    <h4 class="text-[10px] font-black text-gray-400 mb-4 uppercase italic text-center">Histórico Recente</h4>
                     <ul id="finHistory" class="space-y-3 divide-y divide-gray-50"></ul>
                 </div>
             </section>
@@ -122,7 +116,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCsqUeXLDpUhxvHxXOC19iRoQhPuYOGpFw",
@@ -135,11 +129,11 @@
 
         let currentFinance = [];
         let players = [];
+        let totalGlobal = 0;
 
         window.enterApp = (role) => {
             if(role === 'admin') {
-                const pass = document.getElementById('adminPass').value;
-                if(pass !== 'pelada22') return alert("Senha incorreta!");
+                if(document.getElementById('adminPass').value !== 'pelada22') return alert("Senha incorreta!");
                 document.body.classList.add('admin-active');
             }
             document.getElementById('loginPage').classList.add('hidden');
@@ -154,9 +148,9 @@
             event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
         };
 
-        // JOGADORES
+        // --- GESTÃO DE JOGADORES ---
         window.addPlayer = async () => {
-            const name = document.getElementById('pName').value.toUpperCase();
+            const name = document.getElementById('pName').value.toUpperCase().trim();
             const pos = document.getElementById('pPos').value;
             const stars = parseInt(document.getElementById('pStars').value);
             if(!name) return alert("Digite o nome!");
@@ -164,38 +158,103 @@
             document.getElementById('pName').value = "";
         };
 
-        window.deletePlayer = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "amigos_aru_membros", id)); };
+        window.deletePlayer = async (id) => { if(confirm("Excluir atleta?")) await deleteDoc(doc(db, "amigos_aru_membros", id)); };
 
-        // MENSALIDADE
         window.payWithCalendar = async (name, inputId) => {
             const dateValue = document.getElementById(inputId).value;
             if(!dateValue) return alert("Selecione o mês!");
-            const dateParts = dateValue.split('-');
-            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-
+            const [y, m, d] = dateValue.split('-');
             await addDoc(collection(db, "amigos_aru_caixa"), { 
                 desc: `MENSALIDADE: ${name}`, 
-                val: 50.00, 
-                date: formattedDate,
+                val: 20.00,
+                date: `${d}/${m}/${y}`,
                 ts: Date.now() 
             });
-            alert("Pago!");
+            alert("R$ 20,00 registrado!");
         };
 
-        // SORTEIO
+        function renderPlayers() {
+            const list = document.getElementById('playerList');
+            if(!list) return;
+            list.innerHTML = '';
+            players.forEach((p, i) => {
+                const isPaid = currentFinance.some(f => f.val > 0 && f.desc.includes(p.name));
+                list.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm border-l-4 ${isPaid ? 'border-green-400' : 'border-orange-300'}">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-black text-xs uppercase italic">${p.name}</span>
+                            <p class="text-[8px] text-gray-400 uppercase font-bold tracking-tighter">${p.pos} • ${'⭐'.repeat(p.stars)}</p>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <span class="text-[8px] font-black px-2 py-1 rounded uppercase ${isPaid ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}">${isPaid ? 'PAGO' : 'PENDENTE'}</span>
+                            <button onclick="window.deletePlayer('${p.id}')" class="admin-only text-red-300 ml-2"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="admin-only flex gap-2 pt-2 mt-2 border-t border-gray-50">
+                        <input type="date" id="cal_${i}" class="flex-1 text-[10px] border rounded-lg p-1 font-bold bg-slate-50 outline-none">
+                        <button onclick="window.payWithCalendar('${p.name}', 'cal_${i}')" class="bg-green-600 text-white px-3 rounded-lg font-black text-[9px] uppercase italic">Pagar R$ 20</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // --- GESTÃO FINANCEIRA ---
+        window.editFinance = (id) => {
+            const item = currentFinance.find(f => f.id === id);
+            if(item) {
+                window.showTab('aba-financeiro');
+                document.getElementById('editFinId').value = item.id;
+                document.getElementById('fDesc').value = item.desc;
+                document.getElementById('fVal').value = Math.abs(item.val);
+                document.getElementById('formTitle').innerText = "📍 EDITANDO VALOR";
+                document.getElementById('cancelEdit').classList.remove('hidden');
+                document.getElementById('fVal').focus();
+            }
+        };
+
+        window.resetForm = () => {
+            document.getElementById('editFinId').value = "";
+            document.getElementById('fDesc').value = "";
+            document.getElementById('fVal').value = "";
+            document.getElementById('formTitle').innerText = "Gestão Financeira";
+            document.getElementById('cancelEdit').classList.add('hidden');
+        };
+
+        window.saveFinance = async (tipo) => {
+            const id = document.getElementById('editFinId').value;
+            const desc = document.getElementById('fDesc').value.toUpperCase().trim();
+            let val = parseFloat(document.getElementById('fVal').value);
+
+            if(!desc || isNaN(val)) return alert("Preencha tudo!");
+            val = tipo === 'despesa' ? -Math.abs(val) : Math.abs(val);
+
+            if(id) await updateDoc(doc(db, "amigos_aru_caixa", id), { desc, val });
+            else await addDoc(collection(db, "amigos_aru_caixa"), { desc, val, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
+            
+            window.resetForm();
+        };
+
+        window.deleteFinance = async (id) => { if(confirm("Apagar registro?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); };
+
+        window.adjustTotalBalance = async () => {
+            const novoTotal = parseFloat(prompt("Novo saldo total?", totalGlobal.toFixed(2)));
+            if (!isNaN(novoTotal)) {
+                const dif = novoTotal - totalGlobal;
+                await addDoc(collection(db, "amigos_aru_caixa"), { desc: "AJUSTE DE SALDO", val: dif, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
+            }
+        };
+
+        // --- SORTEIO ---
         window.drawBalancedTeams = () => {
             const n = parseInt(document.getElementById('numTeams').value);
             const res = document.getElementById('drawResult');
             res.innerHTML = '';
             if (players.length < n) return alert("Poucos jogadores!");
-
             const gks = players.filter(p => p.pos.includes('🧤')).sort(() => Math.random() - 0.5);
             const others = players.filter(p => !p.pos.includes('🧤')).sort((a, b) => b.stars - a.stars || Math.random() - 0.5);
-
             const teams = Array.from({ length: n }, () => []);
             gks.forEach((gk, i) => teams[i % n].push(gk));
             others.forEach((p, i) => teams[i % n].push(p));
-
             teams.forEach((t, i) => {
                 let html = `<div class="bg-white/10 p-3 rounded-2xl border-l-4 border-green-400 mb-2">
                     <p class="text-green-400 font-black italic mb-1 uppercase text-[10px]">Time ${i + 1}</p>`;
@@ -204,102 +263,32 @@
             });
         };
 
-        // CAIXA ATUALIZADO COM BOTÃO DE DESPESA
-        window.saveFinance = async (tipo) => {
-            const desc = document.getElementById('fDesc').value.toUpperCase();
-            let val = parseFloat(document.getElementById('fVal').value);
-            const editId = document.getElementById('editFinId').value;
-
-            if(!desc || isNaN(val)) return alert("Preencha descrição e valor!");
-
-            // Se for despesa, garante que o valor seja negativo
-            if(tipo === 'despesa') val = -Math.abs(val);
-            if(tipo === 'entrada') val = Math.abs(val);
-
-            if(editId) {
-                await updateDoc(doc(db, "amigos_aru_caixa", editId), { desc, val });
-                document.getElementById('editFinId').value = "";
-                document.getElementById('formTitle').innerText = "Gestão Financeira";
-            } else {
-                await addDoc(collection(db, "amigos_aru_caixa"), { 
-                    desc, val, 
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    ts: Date.now() 
-                });
-            }
-            document.getElementById('fDesc').value = "";
-            document.getElementById('fVal').value = "";
-        };
-
-        window.editFinance = (id) => {
-            const item = currentFinance.find(f => f.id === id);
-            if(item) {
-                document.getElementById('editFinId').value = item.id;
-                document.getElementById('fDesc').value = item.desc;
-                document.getElementById('fVal').value = Math.abs(item.val);
-                document.getElementById('formTitle').innerText = "Editando Registro";
-                window.showTab('aba-financeiro');
-            }
-        };
-
-        window.deleteFinance = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); };
-
-        window.clearAllFinance = async () => {
-            if(confirm("Deseja ZERAR o histórico?")) {
-                const snapshot = await getDocs(collection(db, "amigos_aru_caixa"));
-                snapshot.forEach(d => deleteDoc(doc(db, "amigos_aru_caixa", d.id)));
-                alert("Zerado!");
-            }
-        };
-
-        // SNAPSHOTS
+        // --- FIREBASE LISTENERS ---
         onSnapshot(query(collection(db, "amigos_aru_membros"), orderBy("name")), (s) => {
             players = s.docs.map(d => ({ id: d.id, ...d.data() }));
-            const list = document.getElementById('playerList');
-            list.innerHTML = '';
-            players.forEach((p, i) => {
-                const paid = currentFinance.some(f => f.desc.includes(p.name) && f.val > 0);
-                list.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm border-l-4 ${paid ? 'border-green-400' : 'border-orange-300'}">
-                    <div class="flex justify-between items-center mb-2">
-                        <div>
-                            <span class="font-black text-xs uppercase italic">${p.name}</span>
-                            <p class="text-[8px] text-gray-400 uppercase font-bold tracking-tighter">${p.pos} • ${'⭐'.repeat(p.stars)}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="text-[8px] font-black px-2 py-1 rounded uppercase ${paid ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}">${paid ? 'PAGO' : 'PENDENTE'}</span>
-                            <button onclick="window.deletePlayer('${p.id}')" class="admin-only text-red-300"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="admin-only flex gap-2 pt-2 border-t border-gray-50">
-                        <input type="date" id="cal_${i}" class="flex-1 text-[10px] border rounded-lg p-1 font-bold outline-none">
-                        <button onclick="window.payWithCalendar('${p.name}', 'cal_${i}')" class="bg-green-600 text-white px-3 rounded-lg font-black text-[9px] uppercase italic">Pagar</button>
-                    </div>
-                </div>`;
-            });
+            renderPlayers();
         });
 
         onSnapshot(query(collection(db, "amigos_aru_caixa"), orderBy("ts", "desc")), (s) => {
             currentFinance = s.docs.map(d => ({ id: d.id, ...d.data() }));
             const hist = document.getElementById('finHistory');
-            let total = 0;
+            totalGlobal = 0;
             hist.innerHTML = '';
             currentFinance.forEach(f => {
-                total += f.val;
+                totalGlobal += f.val;
                 hist.innerHTML += `<li class="flex justify-between items-center py-3">
-                    <div class="flex-1">
-                        <p class="text-[9px] font-black uppercase text-slate-700">${f.desc}</p>
-                        <p class="text-[8px] text-gray-300 font-bold italic">${f.date || '---'}</p>
-                    </div>
+                    <div class="flex-1"><p class="text-[10px] font-black uppercase">${f.desc}</p><p class="text-[8px] text-gray-300 font-bold">${f.date || '---'}</p></div>
                     <div class="flex items-center gap-3">
-                        <span class="text-[11px] font-black ${f.val > 0 ? 'text-green-600' : 'text-red-600'}">${f.val > 0 ? '+' : ''}${f.val.toFixed(2)}</span>
-                        <div class="admin-only flex gap-2">
-                            <button onclick="window.editFinance('${f.id}')" class="text-blue-300 text-[10px]"><i class="fas fa-edit"></i></button>
-                            <button onclick="window.deleteFinance('${f.id}')" class="text-red-200 text-[10px]"><i class="fas fa-trash"></i></button>
+                        <span class="text-[11px] font-black ${f.val > 0 ? 'text-green-600' : 'text-red-600'}">R$ ${f.val.toFixed(2)}</span>
+                        <div class="admin-only flex gap-1">
+                            <button onclick="window.editFinance('${f.id}')" class="text-blue-400 p-1"><i class="fas fa-edit"></i></button>
+                            <button onclick="window.deleteFinance('${f.id}')" class="text-red-300 p-1"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </li>`;
             });
-            document.getElementById('dashCash').innerText = total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+            document.getElementById('dashCash').innerText = totalGlobal.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+            renderPlayers();
         });
     </script>
 </body>
