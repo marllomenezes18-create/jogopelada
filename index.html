@@ -20,18 +20,64 @@
         .admin-active .admin-only { display: flex !important; }
         body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
         
-        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .animate-festa { animation: bounce-slow 2s infinite; }
-        
-        #banner-promocional {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+        /* ESTILO DO BANNER COM FOTOS REAIS */
+        #banner-realista {
+            position: relative;
+            height: 160px;
+            border-radius: 2rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-bottom: 4px solid #b91c1c;
         }
+
+        .camada-foto {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Foto de São João (Esquerda) */
+        .foto-junina {
+            clip-path: polygon(0 0, 60% 0, 40% 100%, 0% 100%);
+            z-index: 1;
+        }
+
+        /* Foto da Seleção (Direita) */
+        .foto-brasil {
+            clip-path: polygon(60% 0, 100% 0, 100% 100%, 40% 100%);
+            z-index: 1;
+        }
+
+        .overlay-banner {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 10%, transparent 90%);
+            z-index: 2;
+        }
+
+        .conteudo-banner {
+            z-index: 3;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @keyframes brilho {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        .animar-texto { animation: brilho 2s infinite; }
     </style>
 </head>
 <body class="bg-slate-100 select-none">
 
+    <!-- LOGIN -->
     <div id="loginPage" class="fixed inset-0 bg-green-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
             <h1 class="text-2xl font-black mb-6 uppercase tracking-tighter text-slate-800">AMIGOS ARU</h1>
@@ -41,6 +87,7 @@
         </div>
     </div>
 
+    <!-- APP PRINCIPAL -->
     <div id="mainApp" class="hidden min-h-screen pb-24">
         <nav class="bg-green-700 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
             <h2 class="font-bold italic text-lg uppercase">Amigos ARU</h2>
@@ -49,30 +96,33 @@
 
         <div class="p-4 space-y-4">
             
+            <!-- ABA HOME -->
             <section id="aba-home" class="tab-content active space-y-4">
                 
-                <div id="banner-promocional" class="bg-gradient-to-r from-orange-600 via-yellow-500 to-green-600 p-4 rounded-[2rem] text-white shadow-xl flex items-center justify-between border-b-4 border-orange-800 overflow-hidden relative">
-                    <div class="flex items-center gap-3 z-10">
-                        <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm animate-festa">
-                            <i class="fas fa-fire text-2xl text-orange-200"></i>
+                <!-- BANNER REALISTA COM FOTOS -->
+                <div id="banner-realista">
+                    <!-- Foto Junina (Homem e Mulher dançando) -->
+                    <img src="https://images.unsplash.com/photo-1590422501062-84196d296208?q=80&w=500&auto=format&fit=crop" class="camada-foto foto-junina" alt="São João">
+                    
+                    <!-- Foto Brasil (Jogador/Torcida Seleção) -->
+                    <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=500&auto=format&fit=crop" class="camada-foto foto-brasil" alt="Brasil">
+                    
+                    <div class="overlay-banner"></div>
+                    
+                    <div class="conteudo-banner p-2">
+                        <div class="flex justify-center gap-4 mb-1">
+                            <i class="fas fa-fire text-orange-500 text-xl"></i>
+                            <i class="fas fa-trophy text-yellow-400 text-xl"></i>
                         </div>
-                        <div>
-                            <h4 class="font-black uppercase italic text-xs tracking-tighter leading-none">Arraiá & Copa</h4>
-                            <p class="text-[10px] font-bold opacity-90">Amigos ARU no clima!</p>
+                        <h4 class="font-black uppercase italic text-lg leading-tight tracking-tighter">O ARRAIÁ DO HEXA</h4>
+                        <p class="text-[10px] font-bold animar-texto text-yellow-300 uppercase">Fé, Tradição e Futebol • Amigos ARU 2026</p>
+                        <div class="mt-2 inline-block bg-green-600 px-3 py-1 rounded-full text-[9px] font-black italic uppercase border border-white/30">
+                            Rumo à Vitória 🔥⚽
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 z-10">
-                        <div class="text-right">
-                            <p class="text-[9px] font-black uppercase italic">Rumo ao Hexa</p>
-                            <p class="text-[10px] font-bold text-yellow-200">Viva o São João! 🔥</p>
-                        </div>
-                        <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm animate-festa" style="animation-delay: 0.5s">
-                            <i class="fas fa-trophy text-2xl text-yellow-300"></i>
-                        </div>
-                    </div>
-                    <i class="fas fa-soccer-ball absolute opacity-10 text-6xl -bottom-2 -left-2 rotate-12"></i>
                 </div>
 
+                <!-- SALDO EM CAIXA (DADOS PROTEGIDOS) -->
                 <div class="bg-white p-6 rounded-3xl text-center shadow-sm border-b-4 border-green-500">
                     <p class="text-xs text-gray-400 font-bold uppercase italic">Saldo em Caixa</p>
                     <h3 id="dashCash" class="text-4xl font-black text-slate-800">R$ 0,00</h3>
@@ -81,6 +131,7 @@
                     </button>
                 </div>
 
+                <!-- SORTEIO -->
                 <div class="bg-slate-800 p-5 rounded-3xl text-white shadow-xl">
                     <h3 class="font-black mb-3 uppercase text-xs text-green-400 italic tracking-widest">Sorteio de Times</h3>
                     <div class="flex gap-2 mb-4">
@@ -91,6 +142,7 @@
                 </div>
             </section>
 
+            <!-- ABA JOGADORES (MEMBROS) -->
             <section id="aba-jogadores" class="tab-content">
                 <div class="admin-only flex-col bg-white p-4 rounded-3xl border-2 border-green-500 mb-4 w-full shadow-md">
                     <h3 class="font-bold text-[10px] mb-3 text-green-600 uppercase italic">Cadastrar Atleta</h3>
@@ -113,6 +165,7 @@
                 <div id="playerList" class="space-y-3"></div>
             </section>
 
+            <!-- ABA FINANCEIRO (CAIXA) -->
             <section id="aba-financeiro" class="tab-content">
                 <div class="admin-only flex-col bg-white p-5 rounded-3xl border-2 border-blue-500 mb-4 w-full shadow-lg">
                     <h3 id="formTitle" class="font-black text-xs mb-3 text-blue-600 uppercase italic text-center tracking-widest">Gestão de Caixa</h3>
@@ -134,6 +187,7 @@
             </section>
         </div>
 
+        <!-- NAV -->
         <nav class="fixed bottom-0 w-full bg-white border-t p-4 flex justify-around rounded-t-[2rem] shadow-2xl z-50">
             <button onclick="window.showTab('aba-home')" class="nav-btn text-green-600 flex flex-col items-center"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-black uppercase">Home</span></button>
             <button onclick="window.showTab('aba-jogadores')" class="nav-btn text-gray-400 flex flex-col items-center"><i class="fas fa-users text-lg"></i><span class="text-[9px] font-black uppercase">Membros</span></button>
@@ -141,6 +195,7 @@
         </nav>
     </div>
 
+    <!-- SCRIPTS FIREBASE (Lógica de edição e dados intocados) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -175,7 +230,6 @@
             event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
         };
 
-        // --- FINANCEIRO ---
         window.saveFinance = async (tipo) => {
             const editId = document.getElementById('editFinId').value;
             const desc = document.getElementById('fDesc').value.toUpperCase().trim();
@@ -186,10 +240,8 @@
             try {
                 if(editId) {
                     await updateDoc(doc(db, "amigos_aru_caixa", editId), { desc, val });
-                    alert("Atualizado!");
                 } else {
                     await addDoc(collection(db, "amigos_aru_caixa"), { desc, val, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
-                    alert("Salvo!");
                 }
                 window.resetForm();
             } catch (e) { alert("Erro ao salvar."); }
@@ -204,7 +256,6 @@
                 document.getElementById('fVal').value = Math.abs(item.val);
                 document.getElementById('formTitle').innerText = "📍 EDITANDO VALOR";
                 document.getElementById('cancelEdit').classList.remove('hidden');
-                document.getElementById('fVal').focus();
             }
         };
 
@@ -218,7 +269,6 @@
 
         window.deleteFinance = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); };
 
-        // --- MEMBROS ---
         window.payWithCalendar = async (name, inputId) => {
             const dateInput = document.getElementById(inputId);
             const dateValue = dateInput.value;
