@@ -15,23 +15,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block !important; } /* Forçado para garantir visualização */
         .admin-only { display: none !important; }
         .admin-active .admin-only { display: flex !important; }
-        body { -webkit-tap-highlight-color: transparent; }
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        body { -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        
+        /* Animação do Banner */
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .animate-festa { animation: bounce-slow 2s infinite; }
+        
+        /* Garantia de visibilidade do Banner */
+        #banner-promocional {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
-        .animate-heart { animation: heartbeat 1.5s infinite; }
     </style>
 </head>
 <body class="bg-slate-100 select-none">
 
     <!-- LOGIN -->
     <div id="loginPage" class="fixed inset-0 bg-green-900 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2rem] w-full max-sm text-center shadow-2xl">
+        <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
             <h1 class="text-2xl font-black mb-6 uppercase tracking-tighter text-slate-800">AMIGOS ARU</h1>
             <button onclick="window.enterApp('player')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold mb-4 uppercase shadow-lg">Entrar Jogador</button>
             <input type="password" id="adminPass" placeholder="Senha ADM" class="w-full p-3 border rounded-xl mb-3 text-center outline-none font-bold">
@@ -50,15 +55,28 @@
             
             <!-- ABA HOME -->
             <section id="aba-home" class="tab-content active space-y-4">
-                <!-- BANNER DIA DAS MÃES -->
-                <div class="bg-gradient-to-br from-rose-500 via-pink-500 to-orange-400 p-5 rounded-[2rem] text-white shadow-xl flex items-center gap-4 border-b-4 border-rose-700">
-                    <div class="bg-white/20 p-4 rounded-2xl backdrop-blur-sm animate-heart">
-                        <i class="fas fa-heart text-3xl"></i>
+                
+                <!-- BANNER REFORÇADO (SÃO JOÃO & COPA) -->
+                <div id="banner-promocional" class="bg-gradient-to-r from-orange-600 via-yellow-500 to-green-600 p-4 rounded-[2rem] text-white shadow-xl flex items-center justify-between border-b-4 border-orange-800 overflow-hidden relative">
+                    <div class="flex items-center gap-3 z-10">
+                        <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm animate-festa">
+                            <i class="fas fa-fire text-2xl text-orange-200"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black uppercase italic text-xs tracking-tighter leading-none">Arraiá & Copa</h4>
+                            <p class="text-[10px] font-bold opacity-90">Amigos ARU no clima!</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 class="font-black uppercase italic text-sm tracking-tighter">Homenagem Amigos ARU</h4>
-                        <p class="text-[11px] font-bold leading-tight opacity-95">Feliz Dia das Mães! Uma homenagem a quem nos ensinou o valor do amor e da união. ❤️</p>
+                    <div class="flex items-center gap-3 z-10">
+                        <div class="text-right">
+                            <p class="text-[9px] font-black uppercase italic">Rumo ao Hexa</p>
+                            <p class="text-[10px] font-bold text-yellow-200">Viva o São João! 🔥</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm animate-festa" style="animation-delay: 0.5s">
+                            <i class="fas fa-trophy text-2xl text-yellow-300"></i>
+                        </div>
                     </div>
+                    <i class="fas fa-soccer-ball absolute opacity-10 text-6xl -bottom-2 -left-2 rotate-12"></i>
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl text-center shadow-sm border-b-4 border-green-500">
@@ -70,7 +88,7 @@
                 </div>
 
                 <div class="bg-slate-800 p-5 rounded-3xl text-white shadow-xl">
-                    <h3 class="font-black mb-3 uppercase text-xs text-green-400 italic">Sorteio de Times</h3>
+                    <h3 class="font-black mb-3 uppercase text-xs text-green-400 italic tracking-widest">Sorteio de Times</h3>
                     <div class="flex gap-2 mb-4">
                         <input type="number" id="numTeams" class="w-1/4 p-2 rounded-lg text-slate-900 font-bold text-center" value="2">
                         <button onclick="window.drawBalancedTeams()" class="flex-1 bg-green-500 text-white font-black rounded-lg py-2 uppercase text-xs">Sortear Agora</button>
@@ -79,7 +97,7 @@
                 </div>
             </section>
 
-            <!-- ABA JOGADORES -->
+            <!-- ABA JOGADORES (MEMBROS) -->
             <section id="aba-jogadores" class="tab-content">
                 <div class="admin-only flex-col bg-white p-4 rounded-3xl border-2 border-green-500 mb-4 w-full shadow-md">
                     <h3 class="font-bold text-[10px] mb-3 text-green-600 uppercase italic">Cadastrar Atleta</h3>
@@ -102,17 +120,17 @@
                 <div id="playerList" class="space-y-3"></div>
             </section>
 
-            <!-- ABA FINANCEIRO -->
+            <!-- ABA FINANCEIRO (CAIXA) -->
             <section id="aba-financeiro" class="tab-content">
                 <div class="admin-only flex-col bg-white p-5 rounded-3xl border-2 border-blue-500 mb-4 w-full shadow-lg">
-                    <h3 id="formTitle" class="font-black text-xs mb-3 text-blue-600 uppercase italic text-center">Gestão de Caixa</h3>
+                    <h3 id="formTitle" class="font-black text-xs mb-3 text-blue-600 uppercase italic text-center tracking-widest">Gestão de Caixa</h3>
                     <input type="hidden" id="editFinId">
                     <div class="space-y-2">
                         <input type="text" id="fDesc" placeholder="DESCRIÇÃO" class="w-full p-3 border rounded-xl outline-none text-xs font-bold uppercase">
                         <input type="number" step="0.01" id="fVal" placeholder="VALOR" class="w-full p-3 border rounded-xl outline-none text-xs font-bold">
                         <div class="flex gap-2">
-                            <button onclick="window.saveFinance('entrada')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Entrada</button>
-                            <button onclick="window.saveFinance('despesa')" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Saída</button>
+                            <button onclick="window.saveFinance('entrada')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Entrada</button>
+                            <button onclick="window.saveFinance('despesa')" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Saída</button>
                         </div>
                         <button id="cancelEdit" onclick="window.resetForm()" class="hidden w-full text-gray-400 text-[10px] font-bold uppercase mt-2">Cancelar Edição</button>
                     </div>
@@ -124,7 +142,7 @@
             </section>
         </div>
 
-        <!-- NAV -->
+        <!-- MENU INFERIOR -->
         <nav class="fixed bottom-0 w-full bg-white border-t p-4 flex justify-around rounded-t-[2rem] shadow-2xl z-50">
             <button onclick="window.showTab('aba-home')" class="nav-btn text-green-600 flex flex-col items-center"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-black uppercase">Home</span></button>
             <button onclick="window.showTab('aba-jogadores')" class="nav-btn text-gray-400 flex flex-col items-center"><i class="fas fa-users text-lg"></i><span class="text-[9px] font-black uppercase">Membros</span></button>
@@ -166,31 +184,58 @@
             event.currentTarget.classList.replace('text-gray-400', 'text-green-600');
         };
 
-        // --- FUNÇÃO DE PAGAMENTO CORRIGIDA ---
+        // --- FINANCEIRO ---
+        window.saveFinance = async (tipo) => {
+            const editId = document.getElementById('editFinId').value;
+            const desc = document.getElementById('fDesc').value.toUpperCase().trim();
+            let val = parseFloat(document.getElementById('fVal').value);
+            if(!desc || isNaN(val)) return alert("Preencha descrição e valor!");
+            val = tipo === 'despesa' ? -Math.abs(val) : Math.abs(val);
+
+            try {
+                if(editId) {
+                    await updateDoc(doc(db, "amigos_aru_caixa", editId), { desc, val });
+                    alert("Atualizado!");
+                } else {
+                    await addDoc(collection(db, "amigos_aru_caixa"), { desc, val, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
+                    alert("Salvo!");
+                }
+                window.resetForm();
+            } catch (e) { alert("Erro ao salvar."); }
+        };
+
+        window.editFinance = (id) => {
+            const item = currentFinance.find(f => f.id === id);
+            if(item) {
+                window.showTab('aba-financeiro');
+                document.getElementById('editFinId').value = item.id;
+                document.getElementById('fDesc').value = item.desc;
+                document.getElementById('fVal').value = Math.abs(item.val);
+                document.getElementById('formTitle').innerText = "📍 EDITANDO VALOR";
+                document.getElementById('cancelEdit').classList.remove('hidden');
+                document.getElementById('fVal').focus();
+            }
+        };
+
+        window.resetForm = () => {
+            document.getElementById('editFinId').value = "";
+            document.getElementById('fDesc').value = "";
+            document.getElementById('fVal').value = "";
+            document.getElementById('formTitle').innerText = "Gestão de Caixa";
+            document.getElementById('cancelEdit').classList.add('hidden');
+        };
+
+        window.deleteFinance = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); };
+
+        // --- MEMBROS ---
         window.payWithCalendar = async (name, inputId) => {
             const dateInput = document.getElementById(inputId);
             const dateValue = dateInput.value;
-            
-            if(!dateValue) {
-                alert("Por favor, selecione o mês no calendário primeiro!");
-                return;
-            }
-
+            if(!dateValue) return alert("Selecione o mês!");
             const [y, m, d] = dateValue.split('-');
-            const formattedDate = `${d}/${m}/${y}`;
-
-            try {
-                await addDoc(collection(db, "amigos_aru_caixa"), { 
-                    desc: `MENSALIDADE: ${name}`, 
-                    val: 20.00, 
-                    date: formattedDate, 
-                    ts: Date.now() 
-                });
-                alert(`Pagamento de ${name} (Mês: ${formattedDate}) registrado com sucesso!`);
-                dateInput.value = ""; // Limpa o campo após pagar
-            } catch (e) {
-                alert("Erro ao processar pagamento. Tente novamente.");
-            }
+            await addDoc(collection(db, "amigos_aru_caixa"), { desc: `MENSALIDADE: ${name}`, val: 20.00, date: `${d}/${m}/${y}`, ts: Date.now() });
+            alert(`Pagamento de ${name} registrado!`);
+            dateInput.value = "";
         };
 
         window.addPlayer = async () => {
@@ -229,44 +274,10 @@
             });
         }
 
-        window.editFinance = (id) => {
-            const item = currentFinance.find(f => f.id === id);
-            if(item) {
-                window.showTab('aba-financeiro');
-                document.getElementById('editFinId').value = item.id;
-                document.getElementById('fDesc').value = item.desc;
-                document.getElementById('fVal').value = Math.abs(item.val);
-                document.getElementById('formTitle').innerText = "📍 EDITANDO VALOR";
-                document.getElementById('cancelEdit').classList.remove('hidden');
-            }
-        };
-
-        window.resetForm = () => {
-            document.getElementById('editFinId').value = "";
-            document.getElementById('fDesc').value = "";
-            document.getElementById('fVal').value = "";
-            document.getElementById('formTitle').innerText = "Gestão de Caixa";
-            document.getElementById('cancelEdit').classList.add('hidden');
-        };
-
-        window.saveFinance = async (tipo) => {
-            const id = document.getElementById('editFinId').value;
-            const desc = document.getElementById('fDesc').value.toUpperCase().trim();
-            let val = parseFloat(document.getElementById('fVal').value);
-            if(!desc || isNaN(val)) return alert("Erro nos campos!");
-            val = tipo === 'despesa' ? -Math.abs(val) : Math.abs(val);
-
-            if(id) await updateDoc(doc(db, "amigos_aru_caixa", id), { desc, val });
-            else await addDoc(collection(db, "amigos_aru_caixa"), { desc, val, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
-            window.resetForm();
-        };
-
-        window.deleteFinance = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "amigos_aru_caixa", id)); };
-
         window.adjustTotalBalance = async () => {
             const novo = parseFloat(prompt("Novo saldo total?", totalGlobal.toFixed(2)));
             if (!isNaN(novo)) {
-                await addDoc(collection(db, "amigos_aru_caixa"), { desc: "AJUSTE DE SALDO", val: novo - totalGlobal, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
+                await addDoc(collection(db, "amigos_aru_caixa"), { desc: "CORREÇÃO DE SALDO", val: novo - totalGlobal, date: new Date().toLocaleDateString('pt-BR'), ts: Date.now() });
             }
         };
 
@@ -288,6 +299,7 @@
             });
         };
 
+        // --- SINCRONIZAÇÃO ---
         onSnapshot(query(collection(db, "amigos_aru_membros"), orderBy("name")), (s) => {
             players = s.docs.map(d => ({ id: d.id, ...d.data() }));
             renderPlayers();
@@ -301,7 +313,7 @@
             currentFinance.forEach(f => {
                 totalGlobal += f.val;
                 hist.innerHTML += `<li class="flex justify-between items-center py-3">
-                    <div class="flex-1"><p class="text-[10px] font-black uppercase">${f.desc}</p><p class="text-[8px] text-gray-300 font-bold italic">${f.date || '---'}</p></div>
+                    <div class="flex-1"><p class="text-[10px] font-black uppercase text-slate-700">${f.desc}</p><p class="text-[8px] text-gray-300 font-bold italic">${f.date || '---'}</p></div>
                     <div class="flex items-center gap-3">
                         <span class="text-[11px] font-black ${f.val > 0 ? 'text-green-600' : 'text-red-600'}">R$ ${f.val.toFixed(2)}</span>
                         <div class="admin-only flex gap-1">
